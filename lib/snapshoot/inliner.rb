@@ -28,36 +28,51 @@ module Snapshoot
   end
 
   class Injector
-    include Anima.new(:source_location, :actual_value)
+    include Anima.new(:source, :lineno, :actual_value)
     include Memoizable
 
     def inject
-      puts 'inject....'
-      binding.pry
+      buffer = Parser::Source::Buffer.new('(source)', source: source)
+      Rewriter.new(self).rewrite(buffer, source_ast)
     end
 
-    def source
-      ParsedSource.new(Parser::CurrentRuby.parse(source_file_raw))
+    def snapshot_call
+      parsed_source.inline_snapshot_calls.find do |node|
+        node.loc.line == lineno
+      end
+    end
+
+    def parsed_source
+      ParsedSource.new(source_ast)
     end
     memoize :source
 
-    def source_file_raw
-      source_path.read
+    def source_ast
+      Parser::CurrentRuby.parse(source)
     end
-    memoize :source_file_raw
+    memoize :source_ast
 
-    def source_line
-      source_location.lineno
-    end
-
-    def source_path
-      Pathname.new(source_location.path)
-    end
-
-    def sexp
+    def actual_sexp
       Serializer.serialize(actual_value)
     end
-    memoize :sexp
+    memoize :actual_sexp
+
+    class Rewriter < Parser::TreeRewriter
+      include Concord.new(:injector)
+      include Sexp
+
+      def on_send(node)
+        return super unless node == injector.snapshot_call
+
+        replace(node.loc.expression, Unparser.unparse(injected_matcher))
+      end
+
+      private
+
+      def injected_matcher
+        s(:send, nil, :match_snapshot, injector.actual_sexp)
+      end
+    end
   end
 
   class Serializer
