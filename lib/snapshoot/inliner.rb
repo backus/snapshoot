@@ -28,17 +28,27 @@ module Snapshoot
   end
 
   class Injector
-    include Anima.new(:source, :lineno, :actual_value)
+    include Anima.new(:source, :injections)
     include Memoizable
+    include Sexp
 
     def inject
       buffer = Parser::Source::Buffer.new('(source)', source: source)
       Rewriter.new(self).rewrite(buffer, source_ast)
     end
 
+    def snapshot_call?(node)
+      node == s(:send, nil, :match_snapshot) && injections.key?(node.loc.line)
+    end
+
+    def actual_sexp_for(node)
+      actual_value = injections.fetch(node.loc.line)
+      s(:send, nil, :match_snapshot, Serializer.serialize(actual_value))
+    end
+
     def snapshot_call
       parsed_source.inline_snapshot_calls.find do |node|
-        node.loc.line == lineno
+        injections.key?(node.loc.line)
       end
     end
 
@@ -62,15 +72,9 @@ module Snapshoot
       include Sexp
 
       def on_send(node)
-        return super unless node == injector.snapshot_call
+        return super unless injector.snapshot_call?(node)
 
-        replace(node.loc.expression, Unparser.unparse(injected_matcher))
-      end
-
-      private
-
-      def injected_matcher
-        s(:send, nil, :match_snapshot, injector.actual_sexp)
+        replace(node.loc.expression, Unparser.unparse(injector.actual_sexp_for(node)))
       end
     end
   end
