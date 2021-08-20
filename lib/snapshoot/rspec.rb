@@ -11,11 +11,11 @@ module Snapshoot
   UNSET = Unset.new.freeze
 
   class Snapshot
-    include Concord.new(:expected, :callers)
+    include Concord.new(:expected, :source_location)
 
     def matches?(actual)
       if unset?
-        Snapshoot::Inliner.inline(actual, callers)
+        Snapshoot::Injector.new(source_location: source_location, actual_value: actual).inject
       else
         expected.eql?(actual)
       end
@@ -27,8 +27,8 @@ module Snapshoot
   end
 
   def match_snapshot(expected = UNSET)
-    callers = caller_locations
+    source_location = caller_locations(1..1).first
 
-    Snapshot.new(expected, callers)
+    Snapshot.new(expected, source_location)
   end
 end
