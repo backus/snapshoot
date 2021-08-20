@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require 'snapshoot/rspec'
+
 RSpec.describe Snapshoot do
-  it 'runs rspec' do
-    expect(1).to eql(1)
+  include Snapshoot
+
+  it 'can fill in a basic snapshot' do
+    expect(2 + 2).to match_snapshot
   end
 end

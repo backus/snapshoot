@@ -15,3 +15,6 @@ group :lint do
   gem 'rubocop', '~> 1.19.1'
   gem 'rubocop-rspec', '~> 2.4.0'
 end
+
+gem "pry", "~> 0.13.1"
+gem "pry-byebug", "~> 3.9"
