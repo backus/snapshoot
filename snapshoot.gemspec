@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require File.expand_path('../lib/snapshoot/version', __FILE__)
+require File.expand_path('lib/snapshoot/version', __dir__)
 
 Gem::Specification.new do |spec|
   spec.name        = 'snapshoot'
@@ -16,8 +16,9 @@ Gem::Specification.new do |spec|
   spec.require_paths = %w[lib]
   spec.executables   = %w[snapshoot]
 
-  spec.add_dependency 'concord',  '~> 0.1'
   spec.add_dependency 'anima',    '~> 0.3'
-  spec.add_dependency 'rspec',    '~> 3.4'
+  spec.add_dependency 'concord',  '~> 0.1'
   spec.add_dependency 'parser'
+  spec.add_dependency 'rspec', '~> 3.4'
+  spec.add_dependency 'unparser'
 end

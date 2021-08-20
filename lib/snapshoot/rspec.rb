@@ -14,7 +14,15 @@ module Snapshoot
     include Concord.new(:expected, :callers)
 
     def matches?(actual)
-      binding.pry
+      if unset?
+        Snapshoot::Inliner.inline(actual, callers)
+      else
+        expected.eql?(actual)
+      end
+    end
+
+    def unset?
+      expected.equal?(UNSET)
     end
   end
 

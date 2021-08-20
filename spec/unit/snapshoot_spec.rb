@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'snapshoot'
 require 'snapshoot/rspec'
 
 RSpec.describe Snapshoot do
