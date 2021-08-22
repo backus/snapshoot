@@ -15,7 +15,7 @@ module Snapshoot
 
     def matches?(actual)
       if unset?
-        Snapshoot::Injector.new(source_location: source_location, actual_value: actual).inject
+        Snapshoot::Injector.from_spec(caller_location: source_location, actual_value: actual).inject
       else
         expected.eql?(actual)
       end

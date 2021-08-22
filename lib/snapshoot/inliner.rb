@@ -28,13 +28,18 @@ module Snapshoot
   end
 
   class Injector
-    include Anima.new(:source, :injections)
+    include Anima.new(:path, :source, :injections)
     include Memoizable
     include Sexp
 
+    def self.from_spec(caller_location:, actual_value:)
+      path = Pathname.new(caller_location.path)
+      new(path: path, source: path.read, injections: { caller_location.lineno => actual_value })
+    end
+
     def inject
       buffer = Parser::Source::Buffer.new('(source)', source: source)
-      Rewriter.new(self).rewrite(buffer, source_ast)
+      path.write(Rewriter.new(self).rewrite(buffer, source_ast))
     end
 
     def snapshot_call?(node)
