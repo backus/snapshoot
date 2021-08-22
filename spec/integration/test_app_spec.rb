@@ -51,9 +51,11 @@ module SnapshootSpec
     IGNORED_LINES = /\A#{Regexp.union(ignored_line_starters)}/
 
     def simple
-      output.split("\n").reject do |line|
-        IGNORED_LINES.match?(line)
-      end.join("\n")
+      output
+        .split("\n")
+        .reject { |line| IGNORED_LINES.match?(line) }
+        .map { |line| /\A\s*\z/.match?(line) ? '' : line } # Ensure whitespace only lines are just \n
+        .join("\n")
     end
   end
 
@@ -90,7 +92,7 @@ module SnapshootSpec
     end
 
     def spec_diff
-      diff = Shell.run("git diff -U0 --no-color #{test_app_dir.join('spec')}")
+      diff = Shell.run("git diff -U2 --no-color #{test_app_dir.join('spec')}")
       raise 'Diff exit code was not zero?' unless diff.success?
 
       Diff.new(diff.stdout).simple
@@ -153,8 +155,17 @@ RSpec.describe 'Snapshoot test app' do
 
       expect(result.success?).to be(true), result.outputs
       expect(test_app.spec_diff).to eql(<<~DIFF.chomp)
+
+           it 'can snapshot num_friends' do
         -    expect(user.num_friends).to match_snapshot
         +    expect(user.num_friends).to match_snapshot(42)
+           end
+
+           it 'can snapshot date_of_birth' do
+        -    expect(user.date_of_birth).to match_snapshot
+        +    expect(user.date_of_birth).to match_snapshot(Date.new(1990, 6, 6))
+           end
+         end
       DIFF
     end
   end
