@@ -21,4 +21,8 @@ RSpec.describe TestApp do
   it 'can snapshot num_friends' do
     expect(user.num_friends).to match_snapshot
   end
+
+  it 'can snapshot date_of_birth' do
+    expect(user.date_of_birth).to match_snapshot
+  end
 end
