@@ -7,12 +7,12 @@ module SnapshootSpec
     include Anima.new(:stdout, :stderr, :status)
 
     def self.run(command)
-      _stdin, stdout, stderr, process = Open3.popen3(command)
+      stdout, stderr, status = Open3.capture3(command)
 
       new(
-        status: process.value,
-        stdout: stdout.read,
-        stderr: stderr.read
+        status: status,
+        stdout: stdout,
+        stderr: stderr
       )
     end
 
@@ -37,6 +37,26 @@ module SnapshootSpec
     end
   end
 
+  class Diff
+    include Concord.new(:output)
+
+    ignored_line_starters = [
+      'diff --git',
+      'index ',
+      '--- ',
+      '+++ ',
+      '@@ '
+    ]
+
+    IGNORED_LINES = /\A#{Regexp.union(ignored_line_starters)}/
+
+    def simple
+      output.split("\n").reject do |line|
+        IGNORED_LINES.match?(line)
+      end.join("\n")
+    end
+  end
+
   class TestApp
     def self.root
       ROOT.join('test_app')
@@ -49,14 +69,31 @@ module SnapshootSpec
     def assert_pristine!
       return if pristine?
 
-      system("git status #{test_app_relative_path}")
+      system("git status #{test_app_dir}")
       puts
 
-      raise "Expected #{test_app_relative_path}'s git status to be pristine, but uncommitted changes were found"
+      raise "Expected #{test_app_dir}'s git status to be pristine, but uncommitted changes were found"
     end
 
     def pristine?
       unstaged_pristine? && staged_pristine? && untracked_pristine?
+    end
+
+    def revert_changes
+      revert = Shell.run("git restore #{test_app_dir}")
+      raise "Revert command was unsuccessful? (#{revert.status}) #{revert.outputs}" unless revert.success?
+
+      unless pristine?
+        puts 'test_app not pristine after reverting changes?'
+        assert_pristine!
+      end
+    end
+
+    def spec_diff
+      diff = Shell.run("git diff -U0 --no-color #{test_app_dir.join('spec')}")
+      raise 'Diff exit code was not zero?' unless diff.success?
+
+      Diff.new(diff.stdout).simple
     end
 
     private
@@ -70,16 +107,16 @@ module SnapshootSpec
     end
 
     def unstaged_pristine?
-      exit_code("git diff --quiet --exit-code #{test_app_relative_path}")
+      exit_code("git diff --quiet --exit-code #{test_app_dir}")
     end
 
     def staged_pristine?
-      exit_code("git diff --quiet --exit-code --cached #{test_app_relative_path}")
+      exit_code("git diff --quiet --exit-code --cached #{test_app_dir}")
     end
 
     def untracked_pristine?
       Shell
-        .run("git ls-files --exclude-standard --others #{test_app_relative_path}")
+        .run("git ls-files --exclude-standard --others #{test_app_dir}")
         .no_output?
     end
 
@@ -100,9 +137,25 @@ RSpec.describe 'Snapshoot test app' do
     end
   end
 
-  it 'runs tests' do
-    result = SnapshootSpec::Shell.run('bundle exec rspec')
+  let(:test_app) do
+    SnapshootSpec::TestApp.new
+  end
 
-    expect(result.success?).to be(true), result.outputs
+  def temporary_changes
+    yield
+
+    test_app.revert_changes
+  end
+
+  it 'runs tests' do
+    temporary_changes do
+      result = SnapshootSpec::Shell.run('bundle exec rspec')
+
+      expect(result.success?).to be(true), result.outputs
+      expect(test_app.spec_diff).to eql(<<~DIFF.chomp)
+        -    expect(user.num_friends).to match_snapshot
+        +    expect(user.num_friends).to match_snapshot(42)
+      DIFF
+    end
   end
 end
