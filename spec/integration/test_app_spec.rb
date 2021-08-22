@@ -149,9 +149,13 @@ RSpec.describe 'Snapshoot test app' do
     test_app.revert_changes
   end
 
-  it 'runs tests' do
+  def run_test_app_specs
+    SnapshootSpec::Shell.run('bundle exec rspec')
+  end
+
+  it 'injects snapshots into tests' do
     temporary_changes do
-      result = SnapshootSpec::Shell.run('bundle exec rspec')
+      result = run_test_app_specs
 
       expect(result.success?).to be(true), result.outputs
       expect(test_app.spec_diff).to eql(<<~DIFF.chomp)
@@ -165,8 +169,27 @@ RSpec.describe 'Snapshoot test app' do
         -    expect(user.date_of_birth).to match_snapshot
         +    expect(user.date_of_birth).to match_snapshot(Date.new(1990, 6, 6))
            end
+
+           it 'can snapshot the serialization' do
+        -    expect(user.serialize).to match_snapshot
+        +    expect(user.serialize).to match_snapshot({ created_at: Time.new(2021, 12, 25, 5, 0, 0, "+00:00"), first_name: "John", last_name: "Doe", date_of_birth: Date.new(1990, 6, 6), num_friends: 42 })
+           end
          end
       DIFF
+    end
+  end
+
+  it 'passes the test on the second run' do
+    temporary_changes do
+      first_run = run_test_app_specs
+
+      expect(first_run.success?).to be(true), 'Expected first run of test_app specs to pass but they did not'
+
+      second_run = run_test_app_specs
+
+      binding.pry
+
+      expect(second_run.success?).to be(true), 'Expected second run of test_app specs to pass but they did not'
     end
   end
 end
