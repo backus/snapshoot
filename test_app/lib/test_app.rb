@@ -21,6 +21,6 @@ module TestApp
   end
 
   class Name
-    include Concord.new(:first, :last)
+    include Concord::Public.new(:first, :last)
   end
 end

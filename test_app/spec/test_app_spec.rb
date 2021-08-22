@@ -25,4 +25,8 @@ RSpec.describe TestApp do
   it 'can snapshot date_of_birth' do
     expect(user.date_of_birth).to match_snapshot
   end
+
+  it 'can snapshot the serialization' do
+    expect(user.serialize).to match_snapshot
+  end
 end
