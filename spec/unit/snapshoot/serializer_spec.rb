@@ -36,4 +36,16 @@ RSpec.describe Snapshoot::Serializer do
       '{ "string" => 42, symbol: 2.5, 42 => nil }'
     )
   end
+
+  it 'can serialize dates' do
+    expect(serialize(Date.new(2020))).to eql(
+      'Date.new(2020, 1, 1)'
+    )
+  end
+
+  it 'can serialize a time' do
+    expect(serialize(Time.utc(2021))).to eql(
+      'Time.new(2021, 1, 1, 0, 0, 0, "+00:00")'
+    )
+  end
 end

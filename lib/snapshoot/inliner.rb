@@ -181,9 +181,43 @@ module Snapshoot
       end
     end
 
+    class Date < self
+      def self.supports?(value)
+        value.instance_of?(::Date)
+      end
+
+      def serialize
+        s(:send,
+          s(:const, nil, :Date), :new,
+          s(:int, value.year),
+          s(:int, value.month),
+          s(:int, value.day))
+      end
+    end
+
+    class Time < self
+      def self.supports?(value)
+        value.instance_of?(::Time)
+      end
+
+      def serialize
+        s(:send,
+          s(:const, nil, :Time), :new,
+          s(:int, value.year),
+          s(:int, value.month),
+          s(:int, value.day),
+          s(:int, value.hour),
+          s(:int, value.min),
+          s(:int, value.sec),
+          s(:str, value.strftime('%:z')))
+      end
+    end
+
     register Literal
     register SingletonType
     register Array
     register Hash
+    register Date
+    register Time
   end
 end
