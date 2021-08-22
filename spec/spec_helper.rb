@@ -3,7 +3,8 @@
 require 'pry'
 require 'pry-byebug'
 
-puts 'HEY'
+require 'snapshoot'
+require 'snapshoot/rspec'
 
 module SnapshootSpec
   ROOT = Pathname.new(__dir__).parent

@@ -89,8 +89,8 @@ module Snapshoot
 
     NotSupported = Class.new(StandardError)
 
-    def self.inherited(base)
-      Serializer.handlers << base
+    def self.register(serializer)
+      handlers << serializer
     end
 
     def self.serialize(actual)
@@ -98,7 +98,7 @@ module Snapshoot
 
       unless inliner
         raise NotSupported, <<~ERROR
-          Not sure how to inline #{actual.inspect}!
+          Not sure how to inline #{actual.inspect} (#{actual.class.inspect})!
 
           Supported inliners:
 
@@ -112,14 +112,78 @@ module Snapshoot
     abstract_singleton_method :supports?
     abstract_method :serialize
 
-    class Int < self
+    class Literal < self
+      MAP = {
+        Integer => :int,
+        Float => :float,
+        String => :str,
+        Symbol => :sym
+      }
+
       def self.supports?(value)
-        value.instance_of?(Integer)
+        MAP.key?(value.class)
       end
 
       def serialize
-        s(:int, value)
+        s(MAP.fetch(value.class), value)
       end
     end
+
+    class SingletonType < self
+      MAP = {
+        TrueClass => :true,
+        FalseClass => :false,
+        NilClass => :nil
+      }
+
+      def self.supports?(value)
+        MAP.key?(value.class)
+      end
+
+      def serialize
+        s(MAP.fetch(value.class))
+      end
+    end
+
+    class Array < self
+      def self.supports?(value)
+        value.instance_of?(::Array)
+      end
+
+      def serialize
+        s(:array, *members)
+      end
+
+      private
+
+      def members
+        value.map do |member|
+          Serializer.serialize(member)
+        end
+      end
+    end
+
+    class Hash < self
+      def self.supports?(value)
+        value.instance_of?(::Hash)
+      end
+
+      def serialize
+        s(:hash, *pairs)
+      end
+
+      private
+
+      def pairs
+        value.map do |key, value|
+          s(:pair, Serializer.serialize(key), Serializer.serialize(value))
+        end
+      end
+    end
+
+    register Literal
+    register SingletonType
+    register Array
+    register Hash
   end
 end
