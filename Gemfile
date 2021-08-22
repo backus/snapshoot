@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby File.read('.ruby-version').chomp
+ruby '2.6.7'
 
 gemspec
 

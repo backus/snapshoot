@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require 'snapshoot/rspec'
+
 RSpec.describe TestApp do
+  include Snapshoot
+
   let(:user) do
     described_class::User.new(
       created_at: Time.utc(2021, 12, 25, 5),
@@ -10,7 +14,11 @@ RSpec.describe TestApp do
     )
   end
 
-  it 'works' do
+  it 'is a user (sanity check)' do
     expect(user).to be_a(described_class::User)
+  end
+
+  it 'can snapshot num_friends' do
+    expect(user.num_friends).to match_snapshot
   end
 end
