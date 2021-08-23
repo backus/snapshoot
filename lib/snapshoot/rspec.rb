@@ -21,8 +21,6 @@ module Snapshoot
           caller_location: source_location,
           actual_value:    actual
         ).schedule_change
-      else
-        expected.eql?(actual)
       end
     end
 
@@ -32,6 +30,8 @@ module Snapshoot
   end
 
   def match_snapshot(expected = UNSET)
+    return RSpec::Matchers::BuiltIn::Eql.new(expected) unless expected.equal?(UNSET)
+
     source_location = caller_locations(1..1).first
 
     Snapshot.new(expected, source_location)
