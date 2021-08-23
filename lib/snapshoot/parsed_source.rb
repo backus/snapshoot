@@ -9,11 +9,15 @@ module Snapshoot
       buffer = Parser::Source::Buffer.new('(source)', source: raw)
       ast, comments, tokens = Parser::CurrentRuby.new.tokenize(buffer)
 
+      tokens
+        .map! { |token| Token.from_parser(*token) }
+        .sort_by!(&:begin_pos)
+
       new(
         ast:      ast,
         raw:      raw,
         comments: comments,
-        tokens:   tokens.map { |token| Token.from_parser(*token) }
+        tokens:   tokens
       )
     end
 
@@ -21,6 +25,11 @@ module Snapshoot
       recursive_find(ast) do |node|
         node == s(:send, nil, :match_snapshot)
       end
+    end
+
+    # Exclusive range between two nodes. Does not overlap with the source ranges of either
+    def range_between(node1, node2)
+      node1.loc.expression.end.join(node2.loc.expression.begin)
     end
 
     private
@@ -33,14 +42,22 @@ module Snapshoot
     end
 
     class Token
-      include Anima.new(:identifier, :source, :range)
+      include Anima.new(:type, :source, :range)
 
-      def self.from_parser(identifier, (source, range))
+      def self.from_parser(type, (source, range))
         new(
-          identifier: identifier,
-          source:     source,
-          range:      range
+          type:   type,
+          source: source,
+          range:  range
         )
+      end
+
+      def begin_pos
+        range.begin_pos
+      end
+
+      def comma?
+        type == :tCOMMA
       end
     end
   end
