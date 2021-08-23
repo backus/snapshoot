@@ -14,10 +14,6 @@ RSpec.describe TestApp do
     )
   end
 
-  it 'is a user (sanity check)' do
-    expect(user).to be_a(described_class::User)
-  end
-
   it 'can snapshot num_friends' do
     expect(user.num_friends).to match_snapshot
   end
@@ -28,5 +24,9 @@ RSpec.describe TestApp do
 
   it 'can snapshot the serialization' do
     expect(user.serialize).to match_snapshot
+  end
+
+  it 'is a user object' do
+    expect(user).to match_snapshot
   end
 end
