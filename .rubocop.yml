@@ -1,0 +1,328 @@
+require:
+  - rubocop-rspec
+  - rubocop-performance
+AllCops:
+  # This is worth checking periodically for new extensions relevant to us, but it is very noisy
+  # on each run so not worth having enabled all the time.
+  #
+  # As of 2020-12-31 this is currently silencing the rubocop-sequel extension whch we might
+  # consider for cognito only but currently only checks ~1 thing of value.
+  SuggestExtensions: false
+  DisplayCopNames: true
+Gemspec/DateAssignment: # (new in 1.10)
+  Enabled: true
+Layout/FirstArrayElementLineBreak:
+  Enabled: true
+Layout/FirstHashElementLineBreak:
+  Enabled: true
+Layout/FirstMethodArgumentLineBreak:
+  Enabled: true
+Layout/FirstMethodParameterLineBreak:
+  Enabled: true
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: consistent
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+Layout/HashAlignment:
+  EnforcedColonStyle: table
+  EnforcedHashRocketStyle: table
+# The `aligned` setting doesn't actually allow alignment which is our general preference. It forces a hanging indent which I think is awkward.
+Layout/LineEndStringConcatenationIndentation:
+  Enabled: false
+Layout/LineLength:
+  Max: 100
+Layout/MultilineAssignmentLayout:
+  Enabled: true
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+Layout/SpaceBeforeBrackets: # (new in 1.7)
+  Enabled: true
+Layout/TrailingWhitespace:
+  # While we don't really prefer this most of the time, this cop seems like it might be buggy and
+  # it is genuinely awkward to wrap lines in heredocs that rubocop finds acceptable in some cases.
+  # That said, we probably want to revisit this option in the future.
+  AllowInHeredoc: true
+Lint/AmbiguousAssignment: # (new in 1.7)
+  Enabled: true
+Lint/DuplicateBranch: # (new in 1.3)
+  Enabled: true
+Lint/DuplicateRegexpCharacterClassElement: # (new in 1.1)
+  Enabled: true
+Lint/DeprecatedConstants: # (new in 1.8)
+  Enabled: true
+# I don't think we want to police this. Sometimes it is valid to have an empty block.
+Lint/EmptyBlock: # (new in 1.1)
+  Enabled: false
+# I don't think we want to police this. Sometimes it is valid to have an empty class.
+Lint/EmptyClass: # (new in 1.3)
+  Enabled: false
+Lint/EmptyInPattern: # (new in 1.16)
+  Enabled: true
+Lint/LambdaWithoutLiteralBlock: # (new in 1.8)
+  Enabled: true
+# This seems unlikely to be able to correctly determine when `super(...)` is necessary.
+Lint/MissingSuper:
+  Enabled: false
+Lint/NoReturnInBeginEndBlocks: # (new in 1.2)
+  Enabled: false
+Lint/NumberedParameterAssignment: # (new in 1.9)
+  Enabled: true
+Lint/OrAssignmentToConstant: # (new in 1.9)
+  Enabled: true
+Lint/RedundantDirGlobSort: # (new in 1.8)
+  Enabled: true
+Lint/SymbolConversion: # (new in 1.9)
+  Enabled: true
+Lint/ToEnumArguments: # (new in 1.1)
+  Enabled: true
+Lint/TripleQuotes: # (new in 1.9)
+  Enabled: true
+Lint/UnexpectedBlockArity: # (new in 1.5)
+  Enabled: true
+Lint/UnmodifiedReduceAccumulator: # (new in 1.1)
+  Enabled: true
+# AutoCorrect is enabled by default for these two cops that detect whether or not an argument is
+# used and underscores them if not. This is almost never what you want because most of the time
+# it triggers, something is temporarily commented out and then you have to manually de-underscore
+# them. Furthermore in the vast majority of legitimate cases you don't want to just add an
+# underscore, you want to remove the argument or realize that you have a bug.
+Lint/UnusedBlockArgument:
+  AutoCorrect: false
+Lint/UnusedMethodArgument:
+  AutoCorrect: false
+# This makes destructuring (names we don't control) much more awkward.
+Naming/BlockParameterName:
+  Enabled: false
+Naming/InclusiveLanguage:
+  Enabled: false
+Naming/MethodParameterName:
+  Enabled: false
+# The default enforced error name is `e` instead of `error` like we normally use. I considered
+# enforcing that, but it is ok to use a more specific exception name rather than `error`.
+Naming/RescuedExceptionsVariableName:
+  Enabled: false
+# This is just slightly higher than the RuboCop default. The cop still offers a lot of signal,
+# but I don't think we need to be absolutely strict about it.
+Metrics/AbcSize:
+  Enabled: false
+# This causes way too much noise for DSLs (RSpec, Dry-Validation, etc.)
+Metrics/BlockLength:
+  Enabled: false
+Metrics/ClassLength:
+  Max: 200
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/MethodLength:
+  Max: 20
+Metrics/ParameterLists:
+  CountKeywordArgs: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+# This causes several false positives https://github.com/rubocop-hq/rubocop/issues/5953.
+Style/AccessModifierDeclarations:
+  Enabled: false
+Style/AccessorGrouping:
+  Enabled: true
+  EnforcedStyle: separated
+Style/Alias:
+  EnforcedStyle: prefer_alias_method
+Style/ArgumentsForwarding: # (new in 1.1)
+  Enabled: true
+Style/AutoResourceCleanup:
+  Enabled: true
+Style/BarePercentLiterals:
+  EnforcedStyle: percent_q
+Style/CollectionCompact: # (new in 1.2)
+  Enabled: true
+Style/CollectionMethods:
+  Enabled: true
+# This ends up being too spammy
+Style/Documentation:
+  Enabled: false
+# We don't use eval definitions like this and the style is kind of an odd Rails-ism
+Style/DocumentDynamicEvalDefinition: # (new in 1.1)
+  Enabled: false
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+# We only use guard clauses when it guards two or more statements:
+#
+#    # bad
+#    def foo
+#      return if bar
+#
+#      baz
+#    end
+#
+#    # good
+#    def foo
+#      baz if bar
+#    end
+#
+# This includes conditionals with an `else` branch:
+#
+#    # bad
+#    def foo
+#      return qux if bar
+#
+#      baz
+#    end
+#
+#    # good
+#    def foo
+#      if bar
+#        qux
+#      else
+#        baz
+#      end
+#    end
+#
+# It is up to the author of the code in question if the condition concerns
+# exactly two statements
+#
+#    # ok
+#    def foo
+#      return if bar
+#
+#      baz
+#      qux
+#    end
+#
+#    # also ok
+#    def foo
+#      if bar
+#        baz
+#        qux
+#      end
+#    end
+#
+# Use a guard clause if more than two statements are being guarded by the conditional
+#
+#    # bad
+#    def foo
+#      if bar
+#        baz
+#        qux
+#        norf
+#      end
+#    end
+#
+#    # good
+#    def foo
+#      return if bar
+#
+#      baz
+#      qux
+#      norf
+#    end
+Style/EndlessMethod: # (new in 1.8)
+  Enabled: true
+  EnforcedStyle: disallow
+Style/GuardClause:
+  Enabled: false
+Style/HashConversion: # (new in 1.10)
+  Enabled: true
+# This seems like it has a good chance of being unable to detect cases where this simplification
+# is invalid. Mutant will already reduce genuine redundancy so I don't think this is a value add.
+Style/HashExcept: # (new in 1.7)
+  Enabled: true
+Style/InPatternThen: # (new in 1.16)
+  Enabled: true
+Style/IfWithBooleanLiteralBranches: # (new in 1.9)
+  Enabled: false
+Style/MultilineBlockChain:
+  Enabled: false
+Style/MultilineInPatternThen: # (new in 1.16)
+  Enabled: true
+Style/NegatedIfElseCondition: # (new in 1.2)
+  Enabled: true
+Style/NilLambda: # (new in 1.3)
+  Enabled: true
+Style/OptionHash:
+  Enabled: true
+# Comments with symbols and other non-ASCII characters are often extremely helpful.
+Style/AsciiComments:
+  Enabled: false
+Style/PercentLiteralDelimiters:
+  PreferredDelimiters:
+    "%q": "{}"
+    "%Q": "{}"
+Style/QuotedSymbols: # (new in 1.16)
+  Enabled: true
+Style/RedundantArgument: # (new in 1.4)
+  Enabled: true
+Style/Send:
+  Enabled: true
+Style/StringChars: # (new in 1.12)
+  Enabled: true
+Style/StringConcatenation:
+  Enabled: false
+Style/SwapValues: # (new in 1.1)
+  Enabled: true
+Style/TrivialAccessors:
+  ExactNameMatch: false
+# rubocop-rspec cops
+RSpec/AlignLeftLetBrace:
+  Enabled: true
+RSpec/AlignRightLetBrace:
+  Enabled: true
+RSpec/ExampleLength:
+  Enabled: false
+RSpec/Focus:
+  Enabled: true
+  # When focusing a spec, it's a temporary, local state that we don't want our editors to
+  # automatically remove. It should still be flag, but not instantly removed.
+  AutoCorrect: false
+RSpec/IdenticalEqualityAssertion: # (new in 2.4)
+  Enabled: true
+RSpec/MessageExpectation:
+  Enabled: true
+RSpec/MultipleExpectations:
+  Enabled: false
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+RSpec/Pending:
+  Enabled: true
+RSpec/Rails/AvoidSetupHook: # (new in 2.4)
+  Enabled: false
+RSpec/VerifiedDoubles:
+  IgnoreSymbolicNames: true
+RSpec/NestedGroups:
+  Max: 4
+# rubocop-performance cops
+Performance/AncestorsInclude:
+  Enabled: true
+Performance/BlockGivenWithExplicitBlock: # (new in 1.9)
+  Enabled: true
+Performance/BigDecimalWithNumericArgument:
+  Enabled: false
+# This cop checks for things where collections are allocated in a loop that could be moved outside
+# or into a constant. This is kind of cool, but we do this fairly often for small literals and the
+# performance cost is low and having them inline can sometimes give us better mutant coverage than
+# being in a constant. For now this is a bit too onerous but might be worth revisiting.
+Performance/CollectionLiteralInLoop: # (new in 1.8)
+  Enabled: false
+Performance/ConstantRegexp: # (new in 1.9)
+  Enabled: true
+Performance/MapCompact: # (new in 1.11)
+  Enabled: true
+# We use this style often and prefer it for simplicity.
+Performance/MethodObjectAsBlock: # (new in 1.9)
+  Enabled: false
+Performance/RedundantSortBlock:
+  Enabled: true
+Performance/RedundantStringChars:
+  Enabled: true
+Performance/ReverseFirst:
+  Enabled: true
+Performance/SortReverse:
+  Enabled: true
+Performance/Squeeze:
+  Enabled: true
+Performance/StringInclude:
+  Enabled: true
+Performance/Sum: # (new in 1.8)
+  Enabled: true
+Performance/RedundantEqualityComparisonBlock: # (new in 1.10)
+  Enabled: true
+Performance/RedundantSplitRegexpArgument: # (new in 1.10)
+  Enabled: true
