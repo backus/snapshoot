@@ -36,14 +36,13 @@ module Snapshoot
     end
 
     def parsed_source
-      ParsedSource.new(source_ast)
+      ParsedSource.parse(source)
     end
     memoize :source
 
     def source_ast
-      Parser::CurrentRuby.parse(source)
+      parsed_source.ast
     end
-    memoize :source_ast
 
     def actual_sexp
       Serializer.serialize(actual_value)
