@@ -13,6 +13,7 @@ module Snapshoot
 
     def rewrite
       buffer = Parser::Source::Buffer.new('(source)', source: source)
+
       Rewriter.new(self).rewrite(buffer, source_ast)
     end
 
@@ -56,7 +57,10 @@ module Snapshoot
       def on_send(node)
         return super unless injector.snapshot_call?(node)
 
-        replace(node.loc.expression, Unparser.unparse(injector.actual_sexp_for(node)))
+        replace(
+          node.loc.expression,
+          Unparser.unparse(injector.actual_sexp_for(node))
+        )
       end
     end
   end
