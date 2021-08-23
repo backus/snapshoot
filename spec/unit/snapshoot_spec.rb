@@ -3,6 +3,8 @@
 RSpec.describe Snapshoot do
   include Snapshoot
 
+  let(:path) { instance_double(Pathname) }
+
   it 'can inject an integer into the snapshot matcher' do
     source = <<~RUBY
       RSpec.describe 'example' do
@@ -13,9 +15,9 @@ RSpec.describe Snapshoot do
     RUBY
 
     injector =
-      described_class::Injector.new(source: source, injections: { 3 => 4 })
+      described_class::Injector.new(path: path, source: source, injections: { 3 => 4 })
 
-    expect(injector.inject).to eql(<<~RUBY)
+    expect(injector.rewrite).to eql(<<~RUBY)
       RSpec.describe 'example' do
         it 'can add 2 + 2' do
           expect(2 + 2).to match_snapshot(4)
@@ -43,9 +45,9 @@ RSpec.describe Snapshoot do
     }
 
     injector =
-      described_class::Injector.new(source: source, injections: line_actual_mapping)
+      described_class::Injector.new(path: path, source: source, injections: line_actual_mapping)
 
-    expect(injector.inject).to eql(<<~RUBY)
+    expect(injector.rewrite).to eql(<<~RUBY)
       RSpec.describe 'example' do
         it 'can add 2 + 2' do
           expect(2 + 2).to match_snapshot(4)

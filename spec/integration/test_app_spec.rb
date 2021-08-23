@@ -187,8 +187,6 @@ RSpec.describe 'Snapshoot test app' do
 
       second_run = run_test_app_specs
 
-      binding.pry
-
       expect(second_run.success?).to be(true), 'Expected second run of test_app specs to pass but they did not'
     end
   end

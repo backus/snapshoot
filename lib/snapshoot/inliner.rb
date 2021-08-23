@@ -37,9 +37,13 @@ module Snapshoot
       new(path: path, source: path.read, injections: { caller_location.lineno => actual_value })
     end
 
-    def inject
+    def rewrite
       buffer = Parser::Source::Buffer.new('(source)', source: source)
-      path.write(Rewriter.new(self).rewrite(buffer, source_ast))
+      Rewriter.new(self).rewrite(buffer, source_ast)
+    end
+
+    def inject
+      path.write(rewrite)
     end
 
     def snapshot_call?(node)
