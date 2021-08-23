@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 
 ruby '2.6.7'
 
-gem 'rspec', '~> 3.4'
-gem 'concord', '~> 0.1.6'
 gem 'anima', '~> 0.3.2'
+gem 'concord', '~> 0.1.6'
+gem 'rspec', '~> 3.4'
 gem 'snapshoot', path: '../'

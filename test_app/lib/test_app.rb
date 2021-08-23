@@ -11,11 +11,11 @@ module TestApp
 
     def serialize
       {
-        created_at: created_at,
-        first_name: name.first,
-        last_name: name.last,
+        created_at:    created_at,
+        first_name:    name.first,
+        last_name:     name.last,
         date_of_birth: date_of_birth,
-        num_friends: num_friends
+        num_friends:   num_friends
       }
     end
   end

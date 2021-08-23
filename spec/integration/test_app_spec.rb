@@ -83,7 +83,9 @@ module SnapshootSpec
 
     def revert_changes
       revert = Shell.run("git restore #{test_app_dir}")
-      raise "Revert command was unsuccessful? (#{revert.status}) #{revert.outputs}" unless revert.success?
+      unless revert.success?
+        raise "Revert command was unsuccessful? (#{revert.status}) #{revert.outputs}"
+      end
 
       unless pristine?
         puts 'test_app not pristine after reverting changes?'
@@ -188,11 +190,13 @@ RSpec.describe 'Snapshoot test app' do
     temporary_changes do
       first_run = run_test_app_specs
 
-      expect(first_run.success?).to be(true), 'Expected first run of test_app specs to pass but they did not'
+      expect(first_run.success?).to be(true),
+                                    'Expected first run of test_app specs to pass but they did not'
 
       second_run = run_test_app_specs
 
-      expect(second_run.success?).to be(true), 'Expected second run of test_app specs to pass but they did not'
+      expect(second_run.success?).to be(true),
+                                     'Expected second run of test_app specs to pass but they did not'
     end
   end
 end

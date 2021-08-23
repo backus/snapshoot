@@ -13,7 +13,7 @@ module Snapshoot
 
     def recursive_find(node, &blk)
       return nil unless node.is_a?(Parser::AST::Node)
-      return [node] if blk.call(node)
+      return [node] if yield(node)
 
       node.children.map { |child| recursive_find(child, &blk) }.flatten.compact
     end

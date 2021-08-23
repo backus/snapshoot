@@ -28,8 +28,8 @@ RSpec.describe Snapshoot::Serializer do
   it 'can serialize simple hashes' do
     value = {
       'string' => 42,
-      :symbol => 2.5,
-      42 => nil
+      :symbol  => 2.5,
+      42       => nil
     }
 
     expect(serialize(value)).to eql(
@@ -50,9 +50,10 @@ RSpec.describe Snapshoot::Serializer do
   end
 
   it 'can serialize an anima based object' do
-    user_class = Class.new do
-      include Anima.new(:username, :age)
-    end
+    user_class =
+      Class.new do
+        include Anima.new(:username, :age)
+      end
 
     stub_const('User', user_class)
 
@@ -64,9 +65,10 @@ RSpec.describe Snapshoot::Serializer do
   end
 
   it 'can serialize a concord based object' do
-    user_class = Class.new do
-      include Concord.new(:username, :age)
-    end
+    user_class =
+      Class.new do
+        include Concord.new(:username, :age)
+      end
 
     stub_const('User', user_class)
 

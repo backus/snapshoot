@@ -41,9 +41,9 @@ module Snapshoot
     class Literal < self
       MAP = {
         Integer => :int,
-        Float => :float,
-        String => :str,
-        Symbol => :sym
+        Float   => :float,
+        String  => :str,
+        Symbol  => :sym
       }
 
       def self.supports?(value)
@@ -57,9 +57,9 @@ module Snapshoot
 
     class SingletonType < self
       MAP = {
-        TrueClass => :true,
+        TrueClass  => :true,
         FalseClass => :false,
-        NilClass => :nil
+        NilClass   => :nil
       }
 
       def self.supports?(value)
@@ -113,11 +113,13 @@ module Snapshoot
       end
 
       def serialize
-        s(:send,
+        s(
+          :send,
           s(:const, nil, :Date), :new,
           s(:int, value.year),
           s(:int, value.month),
-          s(:int, value.day))
+          s(:int, value.day)
+        )
       end
     end
 
@@ -127,7 +129,8 @@ module Snapshoot
       end
 
       def serialize
-        s(:send,
+        s(
+          :send,
           s(:const, nil, :Time), :new,
           s(:int, value.year),
           s(:int, value.month),
@@ -135,7 +138,8 @@ module Snapshoot
           s(:int, value.hour),
           s(:int, value.min),
           s(:int, value.sec),
-          s(:str, value.strftime('%:z')))
+          s(:str, value.strftime('%:z'))
+        )
       end
     end
 
