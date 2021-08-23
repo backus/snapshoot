@@ -16,4 +16,6 @@ require 'unparser'
 require 'memoizable'
 
 require 'snapshoot/version'
-require 'snapshoot/inliner'
+require 'snapshoot/sexp'
+require 'snapshoot/serializer'
+require 'snapshoot/injector'
