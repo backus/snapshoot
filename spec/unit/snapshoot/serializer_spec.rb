@@ -48,4 +48,18 @@ RSpec.describe Snapshoot::Serializer do
       'Time.new(2021, 1, 1, 0, 0, 0, "+00:00")'
     )
   end
+
+  it 'can serialize an anima based object' do
+    user_class = Class.new do
+      include Anima.new(:username, :age)
+    end
+
+    stub_const('User', user_class)
+
+    user_instance = user_class.new(username: 'John', age: 27)
+
+    expect(serialize(user_instance)).to eql(
+      'User.new({ username: "John", age: 27 })'
+    )
+  end
 end

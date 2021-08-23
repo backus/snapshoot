@@ -222,11 +222,40 @@ module Snapshoot
       end
     end
 
+    class AnimaObject < self
+      def self.supports?(value)
+        klass = value.class
+
+        klass.respond_to?(:anima) && # Exposes anima attributes on class
+          klass.respond_to?(:new) && # Does not have a non-standard private constructor
+          klass.name                 # Is not an anonymous class
+      end
+
+      def serialize
+        const = Parser::CurrentRuby.parse(klass.name)
+
+        s(:send, const, :new, Serializer.serialize(anima_members))
+      end
+
+      private
+
+      def anima_members
+        klass.anima.attribute_names.map do |attribute_name|
+          [attribute_name, value.instance_variable_get(:"@#{attribute_name}")]
+        end.to_h
+      end
+
+      def klass
+        value.class
+      end
+    end
+
     register Literal
     register SingletonType
     register Array
     register Hash
     register Date
     register Time
+    register AnimaObject
   end
 end
