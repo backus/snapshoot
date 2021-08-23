@@ -174,6 +174,11 @@ RSpec.describe 'Snapshoot test app' do
         -    expect(user.serialize).to match_snapshot
         +    expect(user.serialize).to match_snapshot({ created_at: Time.new(2021, 12, 25, 5, 0, 0, "+00:00"), first_name: "John", last_name: "Doe", date_of_birth: Date.new(1990, 6, 6), num_friends: 42 })
            end
+
+           it 'is a user object' do
+        -    expect(user).to match_snapshot
+        +    expect(user).to match_snapshot(TestApp::User.new({ name: TestApp::Name.new("John", "Doe"), created_at: Time.new(2021, 12, 25, 5, 0, 0, "+00:00"), date_of_birth: Date.new(1990, 6, 6), num_friends: 42 }))
+           end
          end
       DIFF
     end
