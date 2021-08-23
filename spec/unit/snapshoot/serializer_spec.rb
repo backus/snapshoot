@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'dry/struct'
+
 RSpec.describe Snapshoot::Serializer do
   def serialize(value)
     Unparser.unparse(described_class.serialize(value))
@@ -76,6 +78,22 @@ RSpec.describe Snapshoot::Serializer do
 
     expect(serialize(user_instance)).to eql(
       'User.new("John", 27)'
+    )
+  end
+
+  it 'can serialize a dry struct' do
+    user_class =
+      Class.new(Dry::Struct) do
+        attribute :name, Dry::Types['string']
+        attribute :age,  Dry::Types['int']
+      end
+
+    stub_const('User', user_class)
+
+    user_instance = user_class.new(name: 'John', age: 27)
+
+    expect(serialize(user_instance)).to eql(
+      'User.new({ name: "John", age: 27 })'
     )
   end
 end

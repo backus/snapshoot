@@ -6,6 +6,8 @@ ruby '2.6.7'
 
 gemspec
 
+gem 'dry-struct', '~> 0.3.0'
+
 group :test do
   gem 'rspec', '~> 3.10'
 end

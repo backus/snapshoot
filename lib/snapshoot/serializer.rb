@@ -197,6 +197,28 @@ module Snapshoot
       end
     end
 
+    class DryStruct < self
+      def self.supports?(value)
+        value.class < Dry::Struct &&
+          value.class.respond_to?(:new) &&
+          value.class.respond_to?(:schema)
+      end
+
+      def serialize
+        const = Parser::CurrentRuby.parse(klass.name)
+
+        s(:send, const, :new, Serializer.serialize(struct_arguments))
+      end
+
+      private
+
+      def struct_arguments
+        klass.schema.keys.map do |attribute_name|
+          [attribute_name, value.instance_variable_get(:"@#{attribute_name}")]
+        end.to_h
+      end
+    end
+
     register Literal
     register SingletonType
     register Array
@@ -205,5 +227,6 @@ module Snapshoot
     register Time
     register AnimaObject
     register ConcordObject
+    register DryStruct
   end
 end

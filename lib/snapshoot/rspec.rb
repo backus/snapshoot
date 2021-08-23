@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'snapshoot'
 require 'rspec/expectations'
 require 'concord'
 
@@ -39,6 +40,8 @@ module Snapshoot
 end
 
 RSpec.configure do |config|
+  config.include(Snapshoot)
+
   config.after(:suite) do
     Snapshoot.scheduler.write_changes
   end
