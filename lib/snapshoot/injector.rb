@@ -17,8 +17,18 @@ module Snapshoot
       Rewriter.new(self).rewrite(buffer, source_ast)
     end
 
-    def inject
-      path.write(rewrite)
+    def schedule_change
+      Snapshoot.scheduler.schedule(
+        path:         path.expand_path,
+        source_range: snapshot_call.loc.expression,
+        replacement:  replacement
+      )
+    end
+
+    def replacement
+      Unparser.unparse(
+        s(:send, nil, :match_snapshot, Serializer.serialize(injections.first.last))
+      )
     end
 
     def snapshot_call?(node)

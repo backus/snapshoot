@@ -155,7 +155,7 @@ RSpec.describe 'Snapshoot test app' do
     SnapshootSpec::Shell.run('bundle exec rspec')
   end
 
-  fit 'injects snapshots into tests' do
+  it 'injects snapshots into tests' do
     temporary_changes do
       result = run_test_app_specs
 

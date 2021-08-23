@@ -17,7 +17,10 @@ module Snapshoot
 
     def matches?(actual)
       if unset?
-        Snapshoot::Injector.from_spec(caller_location: source_location, actual_value: actual).inject
+        Snapshoot::Injector.from_spec(
+          caller_location: source_location,
+          actual_value:    actual
+        ).schedule_change
       else
         expected.eql?(actual)
       end
@@ -32,5 +35,11 @@ module Snapshoot
     source_location = caller_locations(1..1).first
 
     Snapshot.new(expected, source_location)
+  end
+end
+
+RSpec.configure do |config|
+  config.after(:suite) do
+    Snapshoot.scheduler.write_changes
   end
 end
