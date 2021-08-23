@@ -26,9 +26,11 @@ module Snapshoot
     end
 
     def replacement
-      Unparser.unparse(
-        s(:send, nil, :match_snapshot, Serializer.serialize(injections.first.last))
-      )
+      Beautifier.new(
+        Unparser.unparse(
+          s(:send, nil, :match_snapshot, Serializer.serialize(injections.first.last))
+        )
+      ).format
     end
 
     def snapshot_call?(node)
