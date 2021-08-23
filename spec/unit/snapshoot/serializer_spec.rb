@@ -62,4 +62,18 @@ RSpec.describe Snapshoot::Serializer do
       'User.new({ username: "John", age: 27 })'
     )
   end
+
+  it 'can serialize a concord based object' do
+    user_class = Class.new do
+      include Concord.new(:username, :age)
+    end
+
+    stub_const('User', user_class)
+
+    user_instance = user_class.new('John', 27)
+
+    expect(serialize(user_instance)).to eql(
+      'User.new("John", 27)'
+    )
+  end
 end
