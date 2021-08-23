@@ -18,20 +18,61 @@ module Snapshoot
     class Formatter < Parser::TreeRewriter
       include Concord.new(:parsed_source)
 
-      def on_hash(node)
-        insert_after(node.loc.begin, "\n")
-        insert_newlines_between_pairs(node.children)
-        align_hash_values(node.children)
-        remove_trailing_space(node)
+      def initialize(*)
+        super
+
+        @single_item_hash = false
+      end
+
+      def on_send(node)
+        _receiver, _message, *args = *node
+        remove_curly_braces_from_hash(args.first) if args.one? && args.first.type.equal?(:hash)
+
         super
       end
 
+      def on_hash(node)
+        format_multiline_hash(node) if node.children.size > 1
+
+        @single_item_hash = node.children.size == 1
+        super
+        @single_item_hash = false
+      end
+
       def on_pair(node)
-        insert_before(node.loc.expression, ' ')
+        insert_before(node.loc.expression, ' ') unless @single_item_hash
         super
       end
 
       private
+
+      def remove_curly_braces_from_hash(node)
+        opening = node.loc.begin
+        closing = node.loc.end
+
+        first_child = node.children.first
+        last_child = node.children.last
+
+        if first_child
+          opening = opening.join(first_child.loc.expression.begin.begin)
+          closing = closing.join(last_child.loc.expression.end.end)
+        end
+
+        if node.children.size > 1
+          replace(opening, "\n ")
+          replace(closing, "\n")
+        else
+          remove(opening)
+          remove(closing)
+        end
+      end
+
+      def format_multiline_hash(node)
+        insert_after(node.loc.begin, "\n")
+        insert_newlines_between_pairs(node.children)
+        align_hash_values(node.children)
+        remove_trailing_space(node)
+      end
 
       def remove_trailing_space(node)
         last_pair = node.children.last
