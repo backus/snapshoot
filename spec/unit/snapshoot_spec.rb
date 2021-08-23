@@ -24,25 +24,6 @@ RSpec.describe Snapshoot do
     RUBY
   end
 
-  fit 'can schedule a change' do
-    source = <<~RUBY
-      RSpec.describe 'example' do
-        it 'can add 2 + 2' do
-          expect(2 + 2).to match_snapshot
-        end
-      end
-    RUBY
-
-    allow(path).to receive(:expand_path).and_return(path)
-    allow(path).to receive(:read).and_return(source)
-
-    injector =
-      described_class::Injector.new(path: path, source: source, injections: { 3 => 4 })
-
-    injector.schedule_change
-    expect(Snapshoot.scheduler).to be(nil)
-  end
-
   it 'can inject multiple values into the snapshot' do
     source = <<~RUBY
       RSpec.describe 'example' do
