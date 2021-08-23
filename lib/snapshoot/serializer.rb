@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Snapshoot
   class Serializer
     include Concord.new(:value)
@@ -44,7 +46,7 @@ module Snapshoot
         Float   => :float,
         String  => :str,
         Symbol  => :sym
-      }
+      }.freeze
 
       def self.supports?(value)
         MAP.key?(value.class)
@@ -60,7 +62,7 @@ module Snapshoot
         TrueClass  => :true,
         FalseClass => :false,
         NilClass   => :nil
-      }
+      }.freeze
 
       def self.supports?(value)
         MAP.key?(value.class)

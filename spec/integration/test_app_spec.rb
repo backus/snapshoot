@@ -48,7 +48,7 @@ module SnapshootSpec
       '@@ '
     ]
 
-    IGNORED_LINES = /\A#{Regexp.union(ignored_line_starters)}/
+    IGNORED_LINES = /\A#{Regexp.union(ignored_line_starters)}/.freeze
 
     def simple
       output

@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe Snapshoot do
-  include Snapshoot
-
   let(:path) { instance_double(Pathname) }
 
   it 'can inject an integer into the snapshot matcher' do
