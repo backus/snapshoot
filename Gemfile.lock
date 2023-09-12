@@ -110,6 +110,7 @@ GEM
       parser (>= 3.0.0)
 
 PLATFORMS
+  arm64-darwin-22
   x86_64-darwin-20
 
 DEPENDENCIES
@@ -123,7 +124,7 @@ DEPENDENCIES
   snapshoot!
 
 RUBY VERSION
-   ruby 2.6.7p197
+   ruby 2.7.8p225
 
 BUNDLED WITH
    2.2.15
